@@ -1,0 +1,82 @@
+﻿<Window x:Class="App_Gerenciador_de_Tarefas.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:App_Gerenciador_de_Tarefas"
+		mc:Ignorable="d"
+		Title="Gerenciamento de Tarefas" Height="450" Width="800">
+	<StackPanel Orientation="Vertical" Margin="10">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition/>
+				<RowDefinition/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<Label Grid.Row="0" Grid.Column="0" Content="Título:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+			<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding NewTitle}" VerticalAlignment="Center"/>
+			<Label Grid.Row="1" Grid.Column="0" Content="Descrição:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+			<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewDescription}" VerticalAlignment="Center"/>
+			<Label Grid.Row="2" Grid.Column="0" Content="Data de conclusão:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+			<TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewCompleted}" VerticalAlignment="Center"/>
+		</Grid>
+		<Button Content="Adicionar Tarefa"
+				Margin="0,20,0,0"
+				Background="CornflowerBlue"
+				FontWeight="Bold"
+				FontSize="14"
+				Command="{Binding AddToDoItemCommand}"
+                Width="390"/>
+		
+		<ScrollViewer VerticalScrollBarVisibility="Auto" Height="350">
+		<ItemsControl ItemsSource="{Binding Tasks}" Width="400" HorizontalAlignment="Center">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<StackPanel />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Grid Margin="5" Background="#00aaff">
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="Auto"/>
+							</Grid.RowDefinitions>
+							<Expander>
+								<Expander.Header>
+									<StackPanel Orientation="Horizontal">
+										<TextBlock Text="{Binding Title}" Margin="5" Width="315"/>
+										<Button Content="❌" Width="26" Background="IndianRed" 
+                                        Command="{Binding DataContext.RemoveToDoItemCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
+										CommandParameter="{Binding}"/>
+									</StackPanel>
+								</Expander.Header>
+								<Expander.Style>
+									<Style TargetType="Expander">
+										<Setter Property="Background" Value="#00aaff"/>
+										<Style.Triggers>
+											<Trigger Property="IsExpanded" Value="True">
+												<Setter Property="Background" Value="LightGreen"/>
+											</Trigger>
+										</Style.Triggers>
+									</Style>
+								</Expander.Style>
+								<StackPanel x:Name="itemContainer">
+									<TextBlock Text="{Binding Description}" Grid.Row="1" Grid.Column="0" Padding="5"/>
+									<TextBlock Text="{Binding Create}" Grid.Row="2" Grid.Column="0" Padding="5"/>
+									<TextBlock Text="{Binding Completed}" Grid.Row="3" Grid.Column="0" Padding="5"/>
+								</StackPanel>
+							</Expander>
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+	</StackPanel>
+</Window>
