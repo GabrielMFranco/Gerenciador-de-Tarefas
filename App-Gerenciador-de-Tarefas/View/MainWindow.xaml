@@ -12,10 +12,6 @@
 			<RowDefinition Height="auto"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*"/>
-		</Grid.ColumnDefinitions>
-		
 		<Grid Grid.Row="0" Grid.Column="0">
 			<Grid.RowDefinitions>
 				<RowDefinition/>
@@ -42,60 +38,64 @@
 				HorizontalAlignment="Center"
 				Padding="10,5"
 				Grid.Row="1" Grid.Column="1"/>
-
-		<Grid Grid.Row="2" Grid.Column="2">
-			<ListBox ItemsSource="{Binding Tasks}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" >
-				<ListBox.ItemContainerStyle>
-					<Style TargetType="ListBoxItem">
-						<Setter Property="Template">
-							<Setter.Value>
-								<ControlTemplate TargetType="ListBoxItem">
-									<Grid>
-										<ContentPresenter/>
-									</Grid>
-								</ControlTemplate>
-							</Setter.Value>
-						</Setter>
-					</Style>
-				</ListBox.ItemContainerStyle>
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="Auto"/>
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="*"/>
-							</Grid.RowDefinitions>
-							<Expander Grid.Column="0" Grid.Row="0">
-								<Expander.Header>
-									<TextBlock  Text="{Binding Title}" Margin="5"  HorizontalAlignment="Stretch"/>
-								</Expander.Header>
-								<Expander.Style>
-									<Style TargetType="Expander">
-										<Setter Property="Background" Value="#00aaff"/>
-										<Style.Triggers>
-											<Trigger Property="IsExpanded" Value="True">
-												<Setter Property="Background" Value="LightGreen"/>
-											</Trigger>
-										</Style.Triggers>
-									</Style>
-
-								</Expander.Style>
-								<StackPanel x:Name="itemContainer">
-									<TextBlock Text="{Binding Description}" Grid.Row="1" Grid.Column="0" Padding="5"/>
-									<TextBlock Text="{Binding Create}" Grid.Row="2" Grid.Column="0" Padding="5"/>
-									<TextBlock Text="{Binding Completed}" Grid.Row="3" Grid.Column="0" Padding="5"/>
-								</StackPanel>
-							</Expander>
-							<Button Grid.Column="1" Content="❌" Background="IndianRed"  VerticalAlignment="Top" Padding="5"
-									Command="{Binding DataContext.RemoveToDoItemCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" 
-									CommandParameter="{Binding}"/>
-						</Grid>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
-		</Grid>
+		<ListBox Grid.Row="2" ItemsSource="{Binding Tasks}">
+			<ListBox.ItemContainerStyle>
+				<Style TargetType="ListBoxItem">
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="ListBoxItem">
+								<Grid>
+									<ContentPresenter/>
+								</Grid>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+				</Style>
+			</ListBox.ItemContainerStyle>
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="auto"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<CheckBox IsChecked="{Binding IsCompleted, Mode=TwoWay}"
+								  Grid.Column="0"
+								  HorizontalAlignment="Center"
+								  VerticalAlignment="Center"
+								  Margin="3">
+						</CheckBox>
+						<Expander Grid.Column="1" Grid.Row="0">
+							<Expander.Header>
+								<TextBlock  Text="{Binding Title}" Margin="5"  HorizontalAlignment="Stretch"/>
+							</Expander.Header>
+							<Expander.Style>
+								<Style TargetType="Expander">
+									<Setter Property="Background" Value="#00aaff"/>
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding IsCompleted}" Value="True">
+											<Setter Property="Background" Value="LightGreen"/>
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</Expander.Style>
+							<StackPanel x:Name="itemContainer">
+								<TextBlock Text="{Binding Description}" Grid.Row="1" Grid.Column="0" Padding="5"/>
+								<TextBlock Text="{Binding Create}" Grid.Row="2" Grid.Column="0" Padding="5"/>
+								<TextBlock Text="{Binding Completed}" Grid.Row="3" Grid.Column="0" Padding="5"/>
+							</StackPanel>
+						</Expander>
+						<Button Grid.Column="2"
+								Content="❌"
+								Background="IndianRed"  
+								VerticalAlignment="Top" 
+								Padding="5"
+								Command="{Binding DataContext.RemoveToDoItemCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" 
+								CommandParameter="{Binding}"/>
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
 	</Grid>
 </Window>
