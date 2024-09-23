@@ -10,6 +10,7 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto"/>
 			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 		<Grid Grid.Row="0" Grid.Column="0">
@@ -29,6 +30,11 @@
 			<Label Grid.Row="2" Grid.Column="0" Content="Data de conclusão:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 			<TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewCompleted}" VerticalAlignment="Center"/>
 		</Grid>
+		<ComboBox ItemsSource="{Binding Selector}" Grid.Row="2" Grid.Column="1" Width="100" HorizontalAlignment="Right" SelectedIndex="0">
+			<ComboBoxItem Content="Todes"/>
+			<ComboBoxItem Content="Concluidas"/>
+			<ComboBoxItem Content="Pendentes"/>
+		</ComboBox>
 		<Button Content="Adicionar Tarefa"
 				Margin="0,20"
 				Background="CornflowerBlue"
@@ -38,7 +44,7 @@
 				HorizontalAlignment="Center"
 				Padding="10,5"
 				Grid.Row="1" Grid.Column="1"/>
-		<ListBox Grid.Row="2" ItemsSource="{Binding Tasks}">
+		<ListBox Grid.Row="3" ItemsSource="{Binding Tasks}">
 			<ListBox.ItemContainerStyle>
 				<Style TargetType="ListBoxItem">
 					<Setter Property="Template">
