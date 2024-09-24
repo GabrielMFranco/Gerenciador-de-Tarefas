@@ -97,9 +97,18 @@
 								</Style>
 							</Expander.Style>
 							<StackPanel x:Name="itemContainer">
-								<TextBlock Text="{Binding Description, StringFormat='Descrição: {0}'}"  Grid.Row="1" Grid.Column="0" Padding="5"/>
-								<TextBlock Text="{Binding Create, StringFormat='Data de criação: {0}'}" Grid.Row="2" Grid.Column="0" Padding="5"/>
-								<TextBlock Text="{Binding Completed, StringFormat='Data de conclusão: {0}'}" Grid.Row="3" Grid.Column="0" Padding="5"/>
+								<TextBlock Padding="5">
+									<Run Text="Descrição: " Foreground="Black" FontWeight="Bold"/>
+									<Run Text="{Binding Description}"/>
+								</TextBlock>
+								<TextBlock >
+									<Run Text="Data de criação: " Foreground="Black" FontWeight="Bold"/>
+									<Run Text="{Binding Create}"/>
+								</TextBlock>
+								<TextBlock>
+									<Run Text="Data de conclusão: " Foreground="Black" FontWeight="Bold"/>
+									<Run Text="{Binding Completed}"/>
+								</TextBlock>
 							</StackPanel>
 						</Expander>
 						<Button Grid.Column="2"
