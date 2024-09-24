@@ -84,7 +84,7 @@
 						</CheckBox>
 						<Expander Grid.Column="1" Grid.Row="0">
 							<Expander.Header>
-								<TextBlock  Text="{Binding Title}" Margin="5"  HorizontalAlignment="Stretch"/>
+								<TextBlock Text="{Binding Title}" Foreground="White" Margin="5" HorizontalAlignment="Stretch"/>
 							</Expander.Header>
 							<Expander.Style>
 								<Style TargetType="Expander">
@@ -97,9 +97,9 @@
 								</Style>
 							</Expander.Style>
 							<StackPanel x:Name="itemContainer">
-								<TextBlock Text="{Binding Description}" Grid.Row="1" Grid.Column="0" Padding="5"/>
-								<TextBlock Text="{Binding Create}" Grid.Row="2" Grid.Column="0" Padding="5"/>
-								<TextBlock Text="{Binding Completed}" Grid.Row="3" Grid.Column="0" Padding="5"/>
+								<TextBlock Text="{Binding Description, StringFormat='Descrição: {0}'}"  Grid.Row="1" Grid.Column="0" Padding="5"/>
+								<TextBlock Text="{Binding Create, StringFormat='Data de criação: {0}'}" Grid.Row="2" Grid.Column="0" Padding="5"/>
+								<TextBlock Text="{Binding Completed, StringFormat='Data de conclusão: {0}'}" Grid.Row="3" Grid.Column="0" Padding="5"/>
 							</StackPanel>
 						</Expander>
 						<Button Grid.Column="2"

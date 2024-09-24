@@ -74,9 +74,9 @@ namespace GerenciadorDeTarefas.ViewModel {
 			if (!string.IsNullOrWhiteSpace(NewTitle) && !string.IsNullOrWhiteSpace(NewDescription) && !string.IsNullOrWhiteSpace(NewCompleted)) {
 				ToDoItem item = new();
 				item.Title = NewTitle;
-				item.Description = $"Descrição {NewDescription}";
-				item.Create = $"Data de criação: {DateTime.Now.ToString("dd/MM/yyyy")}";
-				item.Completed = $"Data de conclusão: {NewCompleted}";
+				item.Description = NewDescription;
+				item.Create =  DateTime.Now.ToString("dd/MM/yyyy");
+				item.Completed = NewCompleted;
 				item.PropertyChanged += TodoItemPropertyChanged;
 
 				_allItems.Add(item);
@@ -85,7 +85,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 				NewTitle = NewDescription = NewCompleted = string.Empty;
 				NotifyPropertyChanged(nameof(UnsavedItems));
 				NotifyPropertyChanged(nameof(CircleVisibility));
-				NotifyPropertyChanged(nameof(CheckOnlyCompleted));
 				
 				return;
 			}
