@@ -16,7 +16,6 @@
 			<RowDefinition Height="auto"/>
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="auto"/>
-
 		</Grid.RowDefinitions>
 		<Grid Grid.Row="0" Grid.Column="0">
 			<Grid.RowDefinitions>
@@ -44,11 +43,17 @@
 				Command="{Binding AddToDoItemCommand}"
 				HorizontalAlignment="Center"
 				Padding="10,5"/>
-		<TextBox Grid.Row="2"
-				 Text="{Binding OnlyCompleted, UpdateSourceTrigger=PropertyChanged}" 
+		<StackPanel Grid.Row="2"
+					Orientation="Horizontal"
+					HorizontalAlignment="Right" VerticalAlignment="Center">
+			<CheckBox Content="TESTE" IsChecked="{Binding OnlyCompleted}" VerticalAlignment="Center"/>
+			<Label Content="TESTE"/>
+			<TextBox 
+				 Text="{Binding TitleFilter, UpdateSourceTrigger=PropertyChanged}" 
 				 Width="200"
-				 HorizontalAlignment="Right"
+				 VerticalAlignment="Center"
 				 Margin="5"/>
+		</StackPanel>
 		<ListBox Grid.Row="3" ItemsSource="{Binding Tasks}">
 			<ListBox.ItemContainerStyle>
 				<Style TargetType="ListBoxItem">

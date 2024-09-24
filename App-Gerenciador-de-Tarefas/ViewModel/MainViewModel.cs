@@ -2,19 +2,14 @@
 
 using App_Gerenciador_de_Tarefas.Foundation;
 using GerenciadorDeTarefas.Model;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using WpfApp1.Foundation;
 
 namespace GerenciadorDeTarefas.ViewModel {
 	public class MainViewModel : ObservableObject {
-		public ObservableCollection<ToDoItem> Selector { get; set; } = new ObservableCollection<ToDoItem>();
-		private List<string> idJson = new List<string>();
 		public MainViewModel() {
 			AddToDoItemCommand = new RelayCommand(AdicionarTarefa);
 			RemoveToDoItemCommand = new RelayCommand<ToDoItem>(RemoveCommand);
@@ -22,8 +17,8 @@ namespace GerenciadorDeTarefas.ViewModel {
 			SaveDataCommand = new RelayCommand(SaveData);
 			LoadData();
 
-			UnsavedItems = false;
 		}
+
 		public string NewTitle {
 			get => Get<string>();
 			set => Set(value);
@@ -36,7 +31,7 @@ namespace GerenciadorDeTarefas.ViewModel {
 			get => Get<string>();
 			set => Set(value);
 		}
-		public string OnlyCompleted {
+		public string TitleFilter {
 			get => Get<string>();
 			set {
 				if (Set(value)) {
@@ -45,18 +40,24 @@ namespace GerenciadorDeTarefas.ViewModel {
 				}
 			}
 		}
-		public bool UnsavedItems {	
+		public bool OnlyCompleted {
 			get => Get<bool>();
-			private set {
+			set {
 				if (Set(value)) {
-					NotifyPropertyChanged(nameof(CircleVisibility));
+					NotifyPropertyChanged(nameof(Tasks));
 				}
 			}
 		}
+		public bool UnsavedItems
+			=> JsonSerializer.Serialize(_allItems) != _lastSavedContent;
 		public Visibility CircleVisibility => UnsavedItems ? Visibility.Visible : Visibility.Collapsed;
-		public IList<ToDoItem> Tasks => _allItems.AsEnumerable()
-			.Where(item => string.IsNullOrWhiteSpace(OnlyCompleted) || item.Title.Contains(OnlyCompleted, StringComparison.OrdinalIgnoreCase))
-			.ToList();
+		public IList<ToDoItem> Tasks 
+			=> _allItems
+				.Where(item => 
+					(string.IsNullOrWhiteSpace(TitleFilter) || item.Title.Contains(TitleFilter, StringComparison.OrdinalIgnoreCase))
+					&& (!OnlyCompleted || item.IsCompleted)
+				)
+				.ToList();
 		//public List<ToDoItem> Tasks
 		//	=> OnlyCompleted
 		//		? _allItems.Where(item => item.IsCompleted).ToList()
@@ -65,68 +66,74 @@ namespace GerenciadorDeTarefas.ViewModel {
 		public ICommand RemoveToDoItemCommand { get; }
 		public ICommand LoadDataCommand { get; }
 		public ICommand SaveDataCommand { get; }
- 
+		 
 		private readonly List<ToDoItem> _allItems = [];
+		private string _lastSavedContent = string.Empty;
+
 		private void AdicionarTarefa() {
 			if (!string.IsNullOrWhiteSpace(NewTitle) && !string.IsNullOrWhiteSpace(NewDescription) && !string.IsNullOrWhiteSpace(NewCompleted)) {
-				ToDoItem tarefa = new();
-				tarefa.Title = NewTitle;
-				tarefa.Description = $"Descrição {NewDescription}";
-				tarefa.Create = $"Data de criação: {DateTime.Now.ToString("dd/MM/yyyy")}";
-				tarefa.Completed = $"Data de conclusão: {NewCompleted}";
+				ToDoItem item = new();
+				item.Title = NewTitle;
+				item.Description = $"Descrição {NewDescription}";
+				item.Create = $"Data de criação: {DateTime.Now.ToString("dd/MM/yyyy")}";
+				item.Completed = $"Data de conclusão: {NewCompleted}";
+				item.PropertyChanged += TodoItemPropertyChanged;
 
-				_allItems.Add(tarefa);
-				Selector.Add(tarefa);
+				_allItems.Add(item);
 				NotifyPropertyChanged(nameof(Tasks));
-
-				UnsavedItems = true;
 
 				NewTitle = NewDescription = NewCompleted = string.Empty;
+				NotifyPropertyChanged(nameof(UnsavedItems));
+				NotifyPropertyChanged(nameof(CircleVisibility));
+				NotifyPropertyChanged(nameof(CheckOnlyCompleted));
+				
+				return;
 			}
-			else {
-				MessageBox.Show("Preencha todos os campos brow!");
-			}
+			MessageBox.Show("Preencha todos os campos brow!");
 		}
-		private void RemoveCommand(ToDoItem tarefa) {
-			if (tarefa != null && _allItems.Remove(tarefa)) {
-				Selector.Remove(tarefa);
+		private void TodoItemPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
+			NotifyPropertyChanged(nameof(UnsavedItems));
+			NotifyPropertyChanged(nameof(CircleVisibility));
+		}
+		private void RemoveCommand(ToDoItem item) {
+			if (item != null && _allItems.Remove(item)) {
 				NotifyPropertyChanged(nameof(Tasks));
-
-				UpdateUnsavedStatus();
-			} else{
-				MessageBox.Show("Item não encontrado na lista.");
-				}
+				NotifyPropertyChanged(nameof(UnsavedItems));
+				NotifyPropertyChanged(nameof(CircleVisibility));
+				item.PropertyChanged -= TodoItemPropertyChanged;
+				return;
 			}
-		private void UpdateUnsavedStatus() {
-			bool hasSameCount = _allItems.Count == idJson.Count;
-			bool hasSameIds = _allItems.Select(item => item.Id).OrderBy(id => id).SequenceEqual(idJson.OrderBy(id => id));
-
-			UnsavedItems = !(hasSameCount && hasSameIds);
+			MessageBox.Show("Item não encontrado na lista.");
 		}
 		private void LoadData() {
 			if (File.Exists("data.json")) {
 				string conteudo = File.ReadAllText("data.json");
-				var loadedItems = JsonSerializer.Deserialize<List<ToDoItem>>(conteudo) ?? new List<ToDoItem>();
-				_allItems.Clear();
-				_allItems.AddRange(loadedItems);
-				Selector.Clear();
-				foreach (var item in loadedItems) {
-					Selector.Add(item);
+				_lastSavedContent = conteudo;
+				List<ToDoItem> loadedItems = JsonSerializer.Deserialize<List<ToDoItem>>(conteudo) ?? new List<ToDoItem>();
+
+				foreach (ToDoItem item in _allItems) {
+					item.PropertyChanged -= TodoItemPropertyChanged;
 				}
-				idJson = loadedItems.Select(item => item.Id).ToList();
-				UpdateUnsavedStatus();
+				_allItems.Clear();
 				
+				foreach (var item in loadedItems) {
+					_allItems.Add(item);
+					item.PropertyChanged += TodoItemPropertyChanged;
+				}
+				NotifyPropertyChanged(nameof(Tasks));
+				NotifyPropertyChanged(nameof(UnsavedItems));
+				NotifyPropertyChanged(nameof(CircleVisibility));
+				return;
 			}
-			else {
-				MessageBox.Show("Arquivo de dados não encontrado.");
-			}
-		}
-		
+			MessageBox.Show("Arquivo de dados não encontrado.");
+		}		
 		private void SaveData() {
-			File.WriteAllText("data.json", JsonSerializer.Serialize(_allItems));
+			string content = JsonSerializer.Serialize(_allItems);
+			File.WriteAllText("data.json", content);
+			_lastSavedContent = content;
+			NotifyPropertyChanged(nameof(UnsavedItems));
+			NotifyPropertyChanged(nameof(CircleVisibility));
 			MessageBox.Show("Salvo com sucesso!", "Salvou");
-			idJson = _allItems.Select(item => item.Id).ToList();
-			UnsavedItems = false;
 		}
 	}
 }
