@@ -98,15 +98,15 @@ namespace GerenciadorDeTarefas.ViewModel {
 				}
 			}
 		private void UpdateUnsavedStatus() {
-			var idList = _allItems.Select(item => item.Id).OrderBy(id => id).ToList();
-			bool compId = idList.SequenceEqual(idJson); 
-			UnsavedItems = !compId;
+			bool hasSameCount = _allItems.Count == idJson.Count;
+			bool hasSameIds = _allItems.Select(item => item.Id).OrderBy(id => id).SequenceEqual(idJson.OrderBy(id => id));
+
+			UnsavedItems = !(hasSameCount && hasSameIds);
 		}
 		private void LoadData() {
 			if (File.Exists("data.json")) {
 				string conteudo = File.ReadAllText("data.json");
 				var loadedItems = JsonSerializer.Deserialize<List<ToDoItem>>(conteudo) ?? new List<ToDoItem>();
-
 				_allItems.Clear();
 				_allItems.AddRange(loadedItems);
 				Selector.Clear();
@@ -115,7 +115,9 @@ namespace GerenciadorDeTarefas.ViewModel {
 				}
 				idJson = loadedItems.Select(item => item.Id).ToList();
 				UpdateUnsavedStatus();
-			}else {
+				
+			}
+			else {
 				MessageBox.Show("Arquivo de dados não encontrado.");
 			}
 		}
