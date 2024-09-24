@@ -12,8 +12,10 @@ using System.Windows.Input;
 using WpfApp1.Foundation;
 
 namespace GerenciadorDeTarefas.ViewModel {
+	
 	public class MainViewModel : ObservableObject {
-	public ObservableCollection<string> Selector { get; set; }
+		private int unsavedCount = 0;
+		public ObservableCollection<string> Selector { get; set; }
 		public MainViewModel() {
 			AddToDoItemCommand = new RelayCommand(AdicionarTarefa);
 			RemoveToDoItemCommand = new RelayCommand<ToDoItem>(RemoveCommand);
@@ -34,20 +36,32 @@ namespace GerenciadorDeTarefas.ViewModel {
 			get => Get<string>();
 			set => Set(value);
 		}
-		public bool OnlyCompleted {
-			get => Get<bool>();
+		public string OnlyCompleted {
+			get => Get<string>();
 			set {
 				if (Set(value)) {
 					NotifyPropertyChanged(nameof(Tasks));
 				}
 			}
 		}
+		public bool UnsavedItems {
+			get => Get<bool>();
+			set {
+				if (Set(value)) {
+					NotifyPropertyChanged(nameof(UnsavedItems));
+					NotifyPropertyChanged(nameof(CircleVisibility));
+				}
+			}
+		}
+
+		public Visibility CircleVisibility => UnsavedItems ? Visibility.Visible : Visibility.Collapsed;
 		public IList<ToDoItem> Tasks {
 			get {
-				if (OnlyCompleted) {
-					return _allItems.Where(item => item.IsCompleted).ToList();
+				var filterTitle = _allItems.AsEnumerable();
+				if (!string.IsNullOrWhiteSpace(OnlyCompleted)) {
+					filterTitle = filterTitle.Where(item => item.Title.Contains(OnlyCompleted, StringComparison.OrdinalIgnoreCase));
 				}
-				return _allItems.ToList();
+				return filterTitle.ToList();
 			}
 		}
 		//public List<ToDoItem> Tasks
@@ -72,6 +86,10 @@ namespace GerenciadorDeTarefas.ViewModel {
 				_allItems.Add(tarefa);
 				NotifyPropertyChanged(nameof(Tasks));
 
+				unsavedCount++;
+				UpdateUnsavedStatus();
+				
+
 				NewTitle = NewDescription = NewCompleted = string.Empty;
 			}
 			else {
@@ -83,7 +101,10 @@ namespace GerenciadorDeTarefas.ViewModel {
 				if (_allItems.Contains(tarefa)) {
 					_allItems.Remove(tarefa);
 					NotifyPropertyChanged(nameof(Tasks));
-					
+
+					if (unsavedCount > 0)
+						unsavedCount--;
+					UpdateUnsavedStatus();
 				}
 				else {
 					MessageBox.Show("Item não encontrado na lista.");
@@ -101,6 +122,12 @@ namespace GerenciadorDeTarefas.ViewModel {
 		private void SaveData() {
 			File.WriteAllText("data.json", JsonSerializer.Serialize(Tasks));
 			MessageBox.Show("Salvo com sucesso!", "Salvou");
+			unsavedCount = 0;
+			UpdateUnsavedStatus();
+		}
+
+		private void UpdateUnsavedStatus() {
+			UnsavedItems = unsavedCount > 0;
 		}
 	}
 }

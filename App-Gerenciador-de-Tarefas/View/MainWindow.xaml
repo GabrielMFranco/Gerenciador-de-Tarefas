@@ -45,9 +45,10 @@
 				HorizontalAlignment="Center"
 				Padding="10,5"/>
 		<TextBox Grid.Row="2"
-				 Text="{Binding OnlyCompleted}"
+				 Text="{Binding OnlyCompleted, UpdateSourceTrigger=PropertyChanged}" 
 				 Width="200"
-				 HorizontalAlignment="Right"/>
+				 HorizontalAlignment="Right"
+				 Margin="5"/>
 		<ListBox Grid.Row="3" ItemsSource="{Binding Tasks}">
 			<ListBox.ItemContainerStyle>
 				<Style TargetType="ListBoxItem">
@@ -110,6 +111,7 @@
 		<StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,8,5,0">
 			<Button Command="{Binding LoadDataCommand}" Content="Recarregar" Padding="5,3" Margin="0,0,5,0"/>
 			<Button Command="{Binding SaveDataCommand}" Content="Salvar" Padding="5,3"/>
+			<Ellipse Visibility="{Binding CircleVisibility}" Fill="red" Width="15" Height="15" Margin="5,0"/>
 		</StackPanel>
 	</Grid>
 </Window>
