@@ -12,18 +12,18 @@ using System.Windows.Input;
 using WpfApp1.Foundation;
 
 namespace GerenciadorDeTarefas.ViewModel {
-	
 	public class MainViewModel : ObservableObject {
-		private int unsavedCount = 0;
-		public ObservableCollection<string> Selector { get; set; }
+		public ObservableCollection<ToDoItem> Selector { get; set; } = new ObservableCollection<ToDoItem>();
+		private List<string> idJson = new List<string>();
 		public MainViewModel() {
 			AddToDoItemCommand = new RelayCommand(AdicionarTarefa);
 			RemoveToDoItemCommand = new RelayCommand<ToDoItem>(RemoveCommand);
 			LoadDataCommand = new RelayCommand(LoadData);
 			SaveDataCommand = new RelayCommand(SaveData);
 			LoadData();
-		}
 
+			UnsavedItems = false;
+		}
 		public string NewTitle {
 			get => Get<string>();
 			set => Set(value);
@@ -41,29 +41,22 @@ namespace GerenciadorDeTarefas.ViewModel {
 			set {
 				if (Set(value)) {
 					NotifyPropertyChanged(nameof(Tasks));
-				}
-			}
-		}
-		public bool UnsavedItems {
-			get => Get<bool>();
-			set {
-				if (Set(value)) {
-					NotifyPropertyChanged(nameof(UnsavedItems));
 					NotifyPropertyChanged(nameof(CircleVisibility));
 				}
 			}
 		}
-
-		public Visibility CircleVisibility => UnsavedItems ? Visibility.Visible : Visibility.Collapsed;
-		public IList<ToDoItem> Tasks {
-			get {
-				var filterTitle = _allItems.AsEnumerable();
-				if (!string.IsNullOrWhiteSpace(OnlyCompleted)) {
-					filterTitle = filterTitle.Where(item => item.Title.Contains(OnlyCompleted, StringComparison.OrdinalIgnoreCase));
+		public bool UnsavedItems {	
+			get => Get<bool>();
+			private set {
+				if (Set(value)) {
+					NotifyPropertyChanged(nameof(CircleVisibility));
 				}
-				return filterTitle.ToList();
 			}
 		}
+		public Visibility CircleVisibility => UnsavedItems ? Visibility.Visible : Visibility.Collapsed;
+		public IList<ToDoItem> Tasks => _allItems.AsEnumerable()
+			.Where(item => string.IsNullOrWhiteSpace(OnlyCompleted) || item.Title.Contains(OnlyCompleted, StringComparison.OrdinalIgnoreCase))
+			.ToList();
 		//public List<ToDoItem> Tasks
 		//	=> OnlyCompleted
 		//		? _allItems.Where(item => item.IsCompleted).ToList()
@@ -74,7 +67,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 		public ICommand SaveDataCommand { get; }
  
 		private readonly List<ToDoItem> _allItems = [];
-
 		private void AdicionarTarefa() {
 			if (!string.IsNullOrWhiteSpace(NewTitle) && !string.IsNullOrWhiteSpace(NewDescription) && !string.IsNullOrWhiteSpace(NewCompleted)) {
 				ToDoItem tarefa = new();
@@ -84,11 +76,10 @@ namespace GerenciadorDeTarefas.ViewModel {
 				tarefa.Completed = $"Data de conclusão: {NewCompleted}";
 
 				_allItems.Add(tarefa);
+				Selector.Add(tarefa);
 				NotifyPropertyChanged(nameof(Tasks));
 
-				unsavedCount++;
-				UpdateUnsavedStatus();
-				
+				UnsavedItems = true;
 
 				NewTitle = NewDescription = NewCompleted = string.Empty;
 			}
@@ -97,37 +88,43 @@ namespace GerenciadorDeTarefas.ViewModel {
 			}
 		}
 		private void RemoveCommand(ToDoItem tarefa) {
-			if (tarefa != null) {
-				if (_allItems.Contains(tarefa)) {
-					_allItems.Remove(tarefa);
-					NotifyPropertyChanged(nameof(Tasks));
+			if (tarefa != null && _allItems.Remove(tarefa)) {
+				Selector.Remove(tarefa);
+				NotifyPropertyChanged(nameof(Tasks));
 
-					if (unsavedCount > 0)
-						unsavedCount--;
-					UpdateUnsavedStatus();
-				}
-				else {
-					MessageBox.Show("Item não encontrado na lista.");
+				UpdateUnsavedStatus();
+			} else{
+				MessageBox.Show("Item não encontrado na lista.");
 				}
 			}
+		private void UpdateUnsavedStatus() {
+			var idList = _allItems.Select(item => item.Id).OrderBy(id => id).ToList();
+			bool compId = idList.SequenceEqual(idJson); 
+			UnsavedItems = !compId;
 		}
 		private void LoadData() {
-			string conteudo = File.ReadAllText("data.json");
-			ToDoItem[] items = JsonSerializer.Deserialize<ToDoItem[]>(conteudo);
-			_allItems.Clear();
-			foreach (ToDoItem item in items) {
-				_allItems.Add(item);
+			if (File.Exists("data.json")) {
+				string conteudo = File.ReadAllText("data.json");
+				var loadedItems = JsonSerializer.Deserialize<List<ToDoItem>>(conteudo) ?? new List<ToDoItem>();
+
+				_allItems.Clear();
+				_allItems.AddRange(loadedItems);
+				Selector.Clear();
+				foreach (var item in loadedItems) {
+					Selector.Add(item);
+				}
+				idJson = loadedItems.Select(item => item.Id).ToList();
+				UpdateUnsavedStatus();
+			}else {
+				MessageBox.Show("Arquivo de dados não encontrado.");
 			}
 		}
+		
 		private void SaveData() {
-			File.WriteAllText("data.json", JsonSerializer.Serialize(Tasks));
+			File.WriteAllText("data.json", JsonSerializer.Serialize(_allItems));
 			MessageBox.Show("Salvo com sucesso!", "Salvou");
-			unsavedCount = 0;
-			UpdateUnsavedStatus();
-		}
-
-		private void UpdateUnsavedStatus() {
-			UnsavedItems = unsavedCount > 0;
+			idJson = _allItems.Select(item => item.Id).ToList();
+			UnsavedItems = false;
 		}
 	}
 }

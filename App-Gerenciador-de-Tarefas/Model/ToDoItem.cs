@@ -11,5 +11,7 @@ namespace GerenciadorDeTarefas.Model {
 			get => Get<bool>();
 			set => Set(value);
 		}
+		public bool IsSaved { get; set; }
+		public string Id { get; private set; } = Guid.NewGuid().ToString();
 	}
 }
