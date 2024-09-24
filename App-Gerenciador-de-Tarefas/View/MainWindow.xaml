@@ -46,8 +46,8 @@
 		<StackPanel Grid.Row="2"
 					Orientation="Horizontal"
 					HorizontalAlignment="Right" VerticalAlignment="Center">
-			<CheckBox Content="TESTE" IsChecked="{Binding OnlyCompleted}" VerticalAlignment="Center"/>
-			<Label Content="TESTE"/>
+			<CheckBox Content="Completas" IsChecked="{Binding OnlyCompleted}" VerticalAlignment="Center"/>
+			<Label Content="Buscar:" VerticalAlignment="Center" Margin="20,0,0,0"/>
 			<TextBox 
 				 Text="{Binding TitleFilter, UpdateSourceTrigger=PropertyChanged}" 
 				 Width="200"
