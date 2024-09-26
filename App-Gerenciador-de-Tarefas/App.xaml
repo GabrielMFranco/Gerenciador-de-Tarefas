@@ -6,6 +6,7 @@
              StartupUri="View/MainWindow.xaml">
     <Application.Resources>
 		<ResourceDictionary>
+			<SolidColorBrush x:Key="CompletionColor" Color="LightGreen"/>
 			<c:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 			<c:DueDateToBrushConverter x:Key="DueDateToBrushConverter"/>
 			<ResourceDictionary.MergedDictionaries>

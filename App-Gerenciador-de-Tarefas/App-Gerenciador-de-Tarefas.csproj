@@ -13,4 +13,12 @@
     <Compile Remove="Converters\BackgroundToRGB.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Assets\teste.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\teste.jpg" />
+  </ItemGroup>
+
 </Project>

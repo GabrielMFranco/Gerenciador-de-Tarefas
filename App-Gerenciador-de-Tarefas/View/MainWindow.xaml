@@ -9,8 +9,9 @@
 		Title="Gerenciamento de Tarefas" 
 		Height="450"
 		Width="800"
-		Topmost="True">
+		Topmost="True">	
 	<Window.Resources>
+		<DiscreteObjectKeyFrame x:Key="RemoveToDoItemCommandProxy" Value="{Binding RemoveToDoItemCommand}"/>
 		<DataTemplate x:Key="ToDoItemTemplate">
 			<Grid>
 				<Grid.ColumnDefinitions>
@@ -27,6 +28,7 @@
 				<Expander Grid.Column="1" Grid.Row="0" Padding="8,3">
 					<Expander.Header>
 						<TextBlock Text="{Binding Title}"
+								   Foreground="{Binding Completed, Converter={StaticResource DueDateToBrushConverter}}"
 								   Margin="5" 
 								   HorizontalAlignment="Stretch"
 								   FontWeight="Bold" FontSize="13" FontFamily="arial">
@@ -37,7 +39,6 @@
 							<Setter Property="Background" Value="#00aaff"/>
 							<Style.Triggers>
 								<DataTrigger Binding="{Binding IsCompleted}" Value="True">
-									<Setter Property="Background" Value="LightGreen"/>
 									<Setter Property="Background" Value="{DynamicResource CompletionColor}"/>
 								</DataTrigger>
 							</Style.Triggers>
@@ -64,7 +65,7 @@
 				<Button Grid.Column="2"
 							Style="{StaticResource DeleteButtonStyle}"
 							Content="❌" 
-							Command="{Binding DataContext.RemoveToDoItemCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" 
+							Command="{Binding Value, Source={StaticResource RemoveToDoItemCommandProxy}}" 
 							CommandParameter="{Binding}"/>
 			</Grid>
 		</DataTemplate>
@@ -109,22 +110,21 @@
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="*" />
 			</Grid.ColumnDefinitions>
-			<StackPanel Grid.Column="0" HorizontalAlignment="Left">
-				<TextBlock Text="Cor de conclusão:" FontWeight="Bold"/>
-				<Border BorderBrush="Black" BorderThickness="1" Padding="3" HorizontalAlignment="Left">
+			<GroupBox Grid.Column="0" Header="Cor de conclusão">
+				<StackPanel HorizontalAlignment="Left">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
 						<Label Content="Red:"/>
 						<TextBox Width="60" VerticalAlignment="Center" ToolTip="0 A 255" MaxLength="3"
-								 Text="{Binding RedToRGB}"/>
+								Text="{Binding RedToRGB, UpdateSourceTrigger=PropertyChanged}"/>
 						<Label Content="Green:"/>
 						<TextBox Width="60" VerticalAlignment="Center" ToolTip="0 A 255" MaxLength="3" 
-								 Text="{Binding GreenToRGB}"/>
+								Text="{Binding GreenToRGB, UpdateSourceTrigger=PropertyChanged}"/>
 						<Label Content="Blue:"/>
 						<TextBox Width="60" VerticalAlignment="Center" ToolTip="0 A 255" MaxLength="3"
-								 Text="{Binding BlueToRGB}"/>
+								Text="{Binding BlueToRGB, UpdateSourceTrigger=PropertyChanged}"/>
 					</StackPanel>
-				</Border>
-			</StackPanel>
+				</StackPanel>
+			</GroupBox>
 			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8" >
 				<CheckBox Content="Completas" IsChecked="{Binding OnlyCompleted}" VerticalAlignment="Center"/>
 				<Label Content="Buscar:" VerticalAlignment="Center" Margin="20,0,0,0"/>
@@ -142,7 +142,42 @@
 						<Setter.Value>
 							<ControlTemplate TargetType="ListBoxItem">
 								<Grid>
-									<ContentPresenter/>
+									<Border Background="Transparent">
+										<Border.Style>
+											<Style TargetType="Border">
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=Self}}" Value="True">
+														<Setter Property="BorderThickness" Value="2"/>
+														<Setter Property="BorderBrush" Value="#000"/>
+													</DataTrigger>
+													<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}" Value="True">
+														<DataTrigger.EnterActions>
+															<BeginStoryboard HandoffBehavior="Compose">
+																<Storyboard>
+																	<ColorAnimation From="Transparent"
+																					To="Red"
+																					Duration="00:00:01"
+																					AutoReverse="True"
+																					RepeatBehavior="Forever"
+																					Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+																</Storyboard>
+															</BeginStoryboard>
+														</DataTrigger.EnterActions>
+														<DataTrigger.ExitActions>
+															<BeginStoryboard HandoffBehavior="Compose">
+																<Storyboard>
+																	<ColorAnimation To="Transparent"
+																					Duration="00:00:01"
+																					Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"/>
+																</Storyboard>
+															</BeginStoryboard>
+														</DataTrigger.ExitActions>
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</Border.Style>
+										<ContentPresenter/>
+									</Border>
 								</Grid>
 							</ControlTemplate>
 						</Setter.Value>
@@ -156,5 +191,42 @@
 			<Button Command="{Binding SaveDataCommand}" Content="Salvar" Padding="5,3"/>
 			<Ellipse Visibility="{Binding UnsavedItems, Converter={StaticResource BoolToVisibilityConverter}}" Fill="red" Width="15" Height="15" Margin="5,0"/>
 		</StackPanel>
+
+		<Grid Grid.Row="0" Grid.RowSpan="5" RenderTransformOrigin="0.5,0.5">
+			<Grid.RenderTransform>
+				<ScaleTransform ScaleX="1" ScaleY="1"/>
+			</Grid.RenderTransform>
+			<Grid.Style>
+				<Style TargetType="Grid">
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding IsVisible, RelativeSource={RelativeSource Mode=Self}}" Value="True">
+							<DataTrigger.EnterActions>
+								<BeginStoryboard>
+									<Storyboard>										
+										<DoubleAnimation From="1"
+														 To="0"
+														 Duration="00:00:03"
+														 Storyboard.TargetProperty="Opacity"/>
+										<DoubleAnimation To="0"
+														 Duration="00:00:03"
+														 Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"/>
+										<DoubleAnimation To="0"
+														 Duration="00:00:03"
+														 Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"/>
+									</Storyboard>
+								</BeginStoryboard>
+							</DataTrigger.EnterActions>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Grid.Style>
+			<Image Source="../Assets/teste.jpg" Stretch="Fill">
+			</Image>
+			<TextBlock Text="Programinha do Obli 🍌🍌🍌🍌🍌🍌🍌" Foreground="Purple" FontSize="50" FontWeight="Black" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock.BitmapEffect>
+					<DropShadowBitmapEffect Color="White" ShadowDepth="2"/>
+				</TextBlock.BitmapEffect>
+			</TextBlock>
+		</Grid>
 	</Grid>
 </Window>
