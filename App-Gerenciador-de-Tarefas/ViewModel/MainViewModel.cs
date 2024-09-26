@@ -134,23 +134,10 @@ namespace GerenciadorDeTarefas.ViewModel {
 			NotifyPropertyChanged(nameof(UnsavedItems));
 			MessageBox.Show("Salvo com sucesso!", "Salvou");
 		}
-		private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e) {
-			// Verifica se a entrada é um número e se, ao adicionar, o total ainda será <= 255
-			if (!int.TryParse(e.Text, out int newValue)) {
-				e.Handled = true; // Não é um número
-				return;
-			}
-
-			var textBox = sender as TextBox;
-			if (textBox != null) {
-				int currentValue = string.IsNullOrEmpty(textBox.Text) ? 0 : int.Parse(textBox.Text);
-				if (currentValue * 10 + newValue > 255) { // Verifica limite
-					e.Handled = true; // Valor excede 255
-				}
-			}
-		}
 
 		private int _redToRGB;
+		private int _greenToRGB;
+		private int _blueToRGB;
 		public int RedToRGB {
 			get => _redToRGB;
 			set {
@@ -161,7 +148,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 				}
 			}
 		}
-		private int _greenToRGB;
 		public int GreenToRGB {
 			get => _greenToRGB;
 			set {
@@ -172,7 +158,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 				}
 			}
 		}
-		private int _blueToRGB;
 		public int BlueToRGB {
 			get => _blueToRGB;
 			set {

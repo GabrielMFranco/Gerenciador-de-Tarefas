@@ -115,8 +115,7 @@
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
 						<Label Content="Red:"/>
 						<TextBox Width="60" VerticalAlignment="Center" ToolTip="0 A 255" MaxLength="3"
-								 Text="{Binding RedToRGB, UpdateSourceTrigger=PropertyChanged}"
-								 PreviewTextInput="PreviewTextInput"/>
+								 Text="{Binding RedToRGB}"/>
 						<Label Content="Green:"/>
 						<TextBox Width="60" VerticalAlignment="Center" ToolTip="0 A 255" MaxLength="3" 
 								 Text="{Binding GreenToRGB}"/>
