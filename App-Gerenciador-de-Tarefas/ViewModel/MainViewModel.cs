@@ -2,10 +2,13 @@
 
 using App_Gerenciador_de_Tarefas.Foundation;
 using GerenciadorDeTarefas.Model;
+using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using WpfApp1.Foundation;
 
 namespace GerenciadorDeTarefas.ViewModel {
@@ -50,9 +53,9 @@ namespace GerenciadorDeTarefas.ViewModel {
 		}
 		public bool UnsavedItems
 			=> JsonSerializer.Serialize(_allItems) != _lastSavedContent;
-		public IList<ToDoItem> Tasks 
+		public IList<ToDoItem> Tasks
 			=> _allItems
-				.Where(item => 
+				.Where(item =>
 					(string.IsNullOrWhiteSpace(TitleFilter) || item.Title.Contains(TitleFilter, StringComparison.OrdinalIgnoreCase))
 					&& (!OnlyCompleted || item.IsCompleted)
 				)
@@ -65,7 +68,7 @@ namespace GerenciadorDeTarefas.ViewModel {
 		public ICommand RemoveToDoItemCommand { get; }
 		public ICommand LoadDataCommand { get; }
 		public ICommand SaveDataCommand { get; }
-		 
+
 		private readonly List<ToDoItem> _allItems = [];
 		private string _lastSavedContent = string.Empty;
 
@@ -74,7 +77,7 @@ namespace GerenciadorDeTarefas.ViewModel {
 				ToDoItem item = new();
 				item.Title = NewTitle;
 				item.Description = NewDescription;
-				item.Create =  DateTime.Today;
+				item.Create = DateTime.Today;
 				item.Completed = NewCompleted.Date;
 				item.PropertyChanged += TodoItemPropertyChanged;
 
@@ -85,7 +88,7 @@ namespace GerenciadorDeTarefas.ViewModel {
 				NewCompleted = DateTime.Today;
 
 				NotifyPropertyChanged(nameof(UnsavedItems));
-				
+
 				return;
 			}
 			MessageBox.Show("Preencha todos os campos brow!");
@@ -130,6 +133,65 @@ namespace GerenciadorDeTarefas.ViewModel {
 			_lastSavedContent = content;
 			NotifyPropertyChanged(nameof(UnsavedItems));
 			MessageBox.Show("Salvo com sucesso!", "Salvou");
+		}
+		private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e) {
+			// Verifica se a entrada é um número e se, ao adicionar, o total ainda será <= 255
+			if (!int.TryParse(e.Text, out int newValue)) {
+				e.Handled = true; // Não é um número
+				return;
+			}
+
+			var textBox = sender as TextBox;
+			if (textBox != null) {
+				int currentValue = string.IsNullOrEmpty(textBox.Text) ? 0 : int.Parse(textBox.Text);
+				if (currentValue * 10 + newValue > 255) { // Verifica limite
+					e.Handled = true; // Valor excede 255
+				}
+			}
+		}
+
+		private int _redToRGB;
+		public int RedToRGB {
+			get => _redToRGB;
+			set {
+				if (_redToRGB != value) {
+					_redToRGB = value;
+					NotifyPropertyChanged(nameof(RedToRGB));
+					UpdateColorResource();
+				}
+			}
+		}
+		private int _greenToRGB;
+		public int GreenToRGB {
+			get => _greenToRGB;
+			set {
+				if (_greenToRGB != value) {
+					_greenToRGB = value;
+					NotifyPropertyChanged(nameof(GreenToRGB));
+					UpdateColorResource();
+				}
+			}
+		}
+		private int _blueToRGB;
+		public int BlueToRGB {
+			get => _blueToRGB;
+			set {
+				if (_blueToRGB != value) {
+					_blueToRGB = value;
+					NotifyPropertyChanged(nameof(BlueToRGB));
+					UpdateColorResource();
+				}
+			}
+		}
+		private void UpdateColorResource() {
+			var red = (byte)RedToRGB;
+			var green = (byte)GreenToRGB;
+			var blue = (byte)BlueToRGB;
+			var newColor = new SolidColorBrush(Color.FromRgb(red, green, blue));
+
+			const string colorResourceKey = "CompletionColor";
+			Application.Current.Resources.Remove(colorResourceKey);
+			Application.Current.Resources.Add(colorResourceKey, newColor);
 		}
 	}
 }

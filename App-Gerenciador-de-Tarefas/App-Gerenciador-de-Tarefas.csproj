@@ -9,4 +9,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Converters\BackgroundToRGB.cs" />
+  </ItemGroup>
+
 </Project>
