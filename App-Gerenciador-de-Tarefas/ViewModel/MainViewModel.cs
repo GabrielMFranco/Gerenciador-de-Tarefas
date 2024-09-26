@@ -37,7 +37,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 			set {
 				if (Set(value)) {
 					NotifyPropertyChanged(nameof(Tasks));
-					NotifyPropertyChanged(nameof(CircleVisibility));
 				}
 			}
 		}
@@ -51,7 +50,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 		}
 		public bool UnsavedItems
 			=> JsonSerializer.Serialize(_allItems) != _lastSavedContent;
-		public Visibility CircleVisibility => UnsavedItems ? Visibility.Visible : Visibility.Collapsed;
 		public IList<ToDoItem> Tasks 
 			=> _allItems
 				.Where(item => 
@@ -87,7 +85,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 				NewCompleted = DateTime.Today;
 
 				NotifyPropertyChanged(nameof(UnsavedItems));
-				NotifyPropertyChanged(nameof(CircleVisibility));
 				
 				return;
 			}
@@ -95,13 +92,11 @@ namespace GerenciadorDeTarefas.ViewModel {
 		}
 		private void TodoItemPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
 			NotifyPropertyChanged(nameof(UnsavedItems));
-			NotifyPropertyChanged(nameof(CircleVisibility));
 		}
 		private void RemoveCommand(ToDoItem item) {
 			if (item != null && _allItems.Remove(item)) {
 				NotifyPropertyChanged(nameof(Tasks));
 				NotifyPropertyChanged(nameof(UnsavedItems));
-				NotifyPropertyChanged(nameof(CircleVisibility));
 				item.PropertyChanged -= TodoItemPropertyChanged;
 				return;
 			}
@@ -125,7 +120,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 				}
 				NotifyPropertyChanged(nameof(Tasks));
 				NotifyPropertyChanged(nameof(UnsavedItems));
-				NotifyPropertyChanged(nameof(CircleVisibility));
 				return;
 			}
 			MessageBox.Show("Arquivo de dados não encontrado.");
@@ -135,7 +129,6 @@ namespace GerenciadorDeTarefas.ViewModel {
 			File.WriteAllText("data.json", content);
 			_lastSavedContent = content;
 			NotifyPropertyChanged(nameof(UnsavedItems));
-			NotifyPropertyChanged(nameof(CircleVisibility));
 			MessageBox.Show("Salvo com sucesso!", "Salvou");
 		}
 	}

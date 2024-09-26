@@ -6,7 +6,7 @@
              StartupUri="View/MainWindow.xaml">
     <Application.Resources>
 		<ResourceDictionary>
-			<c:BoolToYesOrNoStringConverter x:Key="BoolToYesOrNoStringConverter"/>
+			<c:SaveIndicatorVisibility x:Key="SaveIndicatorVisibility"/>
 			<c:DateForBrushConverter x:Key="DateForBrushConverter"/>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="Styles/Button.xaml"/>

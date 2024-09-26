@@ -131,11 +131,7 @@
 		<StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,8,5,0">
 			<Button Command="{Binding LoadDataCommand}" Content="Recarregar" Padding="5,3" Margin="0,0,5,0"/>
 			<Button Command="{Binding SaveDataCommand}" Content="Salvar" Padding="5,3"/>
-			<Ellipse Visibility="{Binding CircleVisibility}" Fill="red" Width="15" Height="15" Margin="5,0"/>	
-			<TextBlock>
-				Tem alteração?
-				<Run Text="{Binding UnsavedItems, Mode=OneWay, Converter={StaticResource BoolToYesOrNoStringConverter}}"/>
-			</TextBlock>
+			<Ellipse Visibility="{Binding UnsavedItems, Converter={StaticResource SaveIndicatorVisibility}}" Fill="red" Width="15" Height="15" Margin="5,0"/>
 		</StackPanel>
 	</Grid>
 </Window>
