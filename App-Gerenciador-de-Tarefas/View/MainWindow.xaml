@@ -44,16 +44,19 @@
 					</Expander.Style>
 					<StackPanel x:Name="itemContainer">
 						<TextBlock Padding="5,3">
-								<Run Text="Descrição: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
-								<Run Text="{Binding Description}" FontWeight="DemiBold" FontFamily="Lobster"/>
+							<Run Text="Descrição: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
+							<Run Text="{Binding Description}" FontWeight="DemiBold" FontFamily="Lobster"/>
 						</TextBlock>
 						<TextBlock Padding="5,3" >
 							<Run Text="Data de criação: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
 							<Run Text="{Binding Create, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="DemiBold" FontFamily="Lobster"/>
 						</TextBlock>
-						<TextBlock Padding="5,3" Foreground="{Binding Completed, Converter={StaticResource DueDateToBrushConverter}}">
+						<TextBlock Padding="5,3">
 							<Run Text="Data de conclusão: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
-							<Run Text="{Binding Completed, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="DemiBold" FontFamily="Lobster"/>
+							<Run Text="{Binding Completed, StringFormat='{}{0:dd/MM/yyyy}'}"
+								 Foreground="{Binding Completed, Converter={StaticResource DueDateToBrushConverter}}"
+								 FontWeight="DemiBold"
+								 FontFamily="Lobster"/>
 						</TextBlock>
 					</StackPanel>
 				</Expander>
@@ -102,7 +105,21 @@
 		
 		<StackPanel Grid.Row="2"
 					Orientation="Horizontal"
-					HorizontalAlignment="Right" VerticalAlignment="Center">
+					HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8" >
+
+			<StackPanel>
+				<TextBlock Text="Cor de conclusão:" FontWeight="Bold" Margin="0,0,0,5"/>
+				<Border BorderBrush="Black" BorderThickness="1" Margin="0,0,20,0" Padding="5">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+						<Label Content="Red:"/>
+						<TextBox Width="60" VerticalAlignment="Center" Text="{Binding RedToRGB}"/>
+						<Label Content="Green:"/>
+						<TextBox Width="60" VerticalAlignment="Center" Text="{Binding GreenToRGB}"/>
+						<Label Content="Blue:"/>
+						<TextBox Width="60" VerticalAlignment="Center" Text="{Binding BlueToRGB}"/>
+					</StackPanel>
+				</Border>
+			</StackPanel>
 			<CheckBox Content="Completas" IsChecked="{Binding OnlyCompleted}" VerticalAlignment="Center"/>
 			<Label Content="Buscar:" VerticalAlignment="Center" Margin="20,0,0,0"/>
 			<TextBox Text="{Binding TitleFilter, UpdateSourceTrigger=PropertyChanged}" 
