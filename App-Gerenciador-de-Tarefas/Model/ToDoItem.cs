@@ -11,12 +11,12 @@ namespace GerenciadorDeTarefas.Model {
 			get => Get<string>();
 			set => Set(value);
 		}
-		public string Create {
-			get => Get<string>();
+		public DateTime Create {
+			get => Get<DateTime>();
 			set => Set(value);
 		}
-		public string Completed {
-			get => Get<string>();
+		public DateTime Completed {
+			get => Get<DateTime>();
 			set => Set(value);
 		}
 		public bool IsCompleted {

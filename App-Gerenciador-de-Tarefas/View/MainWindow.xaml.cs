@@ -7,9 +7,5 @@ namespace App_Gerenciador_de_Tarefas {
 			InitializeComponent();
 			DataContext = new MainViewModel();
 		}
-
-		private void ListBox_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e) {
-
-		}
 	}
 }

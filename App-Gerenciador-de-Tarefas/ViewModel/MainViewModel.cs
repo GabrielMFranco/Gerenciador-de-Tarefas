@@ -15,6 +15,7 @@ namespace GerenciadorDeTarefas.ViewModel {
 			RemoveToDoItemCommand = new RelayCommand<ToDoItem>(RemoveCommand);
 			LoadDataCommand = new RelayCommand(LoadData);
 			SaveDataCommand = new RelayCommand(SaveData);
+			NewCompleted = DateTime.Today;
 			LoadData();
 
 		}
@@ -27,8 +28,8 @@ namespace GerenciadorDeTarefas.ViewModel {
 			get => Get<string>();
 			set => Set(value);
 		}
-		public string NewCompleted {
-			get => Get<string>();
+		public DateTime NewCompleted {
+			get => Get<DateTime>();
 			set => Set(value);
 		}
 		public string TitleFilter {
@@ -71,18 +72,20 @@ namespace GerenciadorDeTarefas.ViewModel {
 		private string _lastSavedContent = string.Empty;
 
 		private void AdicionarTarefa() {
-			if (!string.IsNullOrWhiteSpace(NewTitle) && !string.IsNullOrWhiteSpace(NewDescription) && !string.IsNullOrWhiteSpace(NewCompleted)) {
+			if (!string.IsNullOrWhiteSpace(NewTitle) && !string.IsNullOrWhiteSpace(NewDescription) && NewCompleted != default) {
 				ToDoItem item = new();
 				item.Title = NewTitle;
 				item.Description = NewDescription;
-				item.Create =  DateTime.Now.ToString("dd/MM/yyyy");
-				item.Completed = NewCompleted;
+				item.Create =  DateTime.Today;
+				item.Completed = NewCompleted.Date;
 				item.PropertyChanged += TodoItemPropertyChanged;
 
 				_allItems.Add(item);
 				NotifyPropertyChanged(nameof(Tasks));
 
-				NewTitle = NewDescription = NewCompleted = string.Empty;
+				NewTitle = NewDescription = string.Empty;
+				NewCompleted = DateTime.Today;
+
 				NotifyPropertyChanged(nameof(UnsavedItems));
 				NotifyPropertyChanged(nameof(CircleVisibility));
 				
@@ -108,13 +111,14 @@ namespace GerenciadorDeTarefas.ViewModel {
 			if (File.Exists("data.json")) {
 				string conteudo = File.ReadAllText("data.json");
 				_lastSavedContent = conteudo;
+
 				List<ToDoItem> loadedItems = JsonSerializer.Deserialize<List<ToDoItem>>(conteudo) ?? new List<ToDoItem>();
 
 				foreach (ToDoItem item in _allItems) {
 					item.PropertyChanged -= TodoItemPropertyChanged;
 				}
 				_allItems.Clear();
-				
+
 				foreach (var item in loadedItems) {
 					_allItems.Add(item);
 					item.PropertyChanged += TodoItemPropertyChanged;
@@ -125,7 +129,7 @@ namespace GerenciadorDeTarefas.ViewModel {
 				return;
 			}
 			MessageBox.Show("Arquivo de dados não encontrado.");
-		}		
+		}
 		private void SaveData() {
 			string content = JsonSerializer.Serialize(_allItems);
 			File.WriteAllText("data.json", content);

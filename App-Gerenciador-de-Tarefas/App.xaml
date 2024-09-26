@@ -1,9 +1,16 @@
 ﻿<Application x:Class="App_Gerenciador_de_Tarefas.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:c="clr-namespace:App_Gerenciador_de_Tarefas.Converters"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:App_Gerenciador_de_Tarefas"
              StartupUri="View/MainWindow.xaml">
     <Application.Resources>
-         
-    </Application.Resources>
+		<ResourceDictionary>
+			<c:BoolToYesOrNoStringConverter x:Key="BoolToYesOrNoStringConverter"/>
+			<c:DateForBrushConverter x:Key="DateForBrushConverter"/>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="Styles/Button.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
 </Application>

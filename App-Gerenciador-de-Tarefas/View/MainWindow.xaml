@@ -4,11 +4,67 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:App_Gerenciador_de_Tarefas"
+		xmlns:sys="clr-namespace:System;assembly=mscorlib"
 		mc:Ignorable="d"
 		Title="Gerenciamento de Tarefas" 
 		Height="450"
 		Width="800"
 		Topmost="True">
+	<Window.Resources>
+		<DataTemplate x:Key="ToDoItemTemplate">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+				<CheckBox IsChecked="{Binding IsCompleted, Mode=TwoWay}"
+							  Grid.Column="0"
+							  HorizontalAlignment="Center"
+							  VerticalAlignment="Center"
+							  Margin="3">
+				</CheckBox>
+				<Expander Grid.Column="1" Grid.Row="0" Padding="8,3">
+					<Expander.Header>
+						<TextBlock Text="{Binding Title}" 
+								   Foreground="{Binding Completed, Converter={StaticResource DateForBrushConverter}}"
+								   Margin="5" 
+								   HorizontalAlignment="Stretch"
+								   FontWeight="Bold" FontSize="13" FontFamily="arial"/>
+					</Expander.Header>
+					<Expander.Style>
+						<Style TargetType="Expander">
+							<Setter Property="Background" Value="#00aaff"/>
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding IsCompleted}" Value="True">
+									<Setter Property="Background" Value="LightGreen"/>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</Expander.Style>
+					<StackPanel x:Name="itemContainer">
+						<TextBlock Padding="5,3">
+								<Run Text="Descrição: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
+								<Run Text="{Binding Description}" FontWeight="DemiBold" FontFamily="Lobster"/>
+						</TextBlock>
+						<TextBlock Padding="5,3" >
+							<Run Text="Data de criação: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
+							<Run Text="{Binding Create, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="DemiBold" FontFamily="Lobster"/>
+						</TextBlock>
+						<TextBlock Padding="5,3" Foreground="{Binding Completed, Converter={StaticResource DateForBrushConverter}}">
+							<Run Text="Data de conclusão: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
+							<Run Text="{Binding Completed, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="DemiBold" FontFamily="Lobster"/>
+						</TextBlock>
+					</StackPanel>
+				</Expander>
+				<Button Grid.Column="2"
+							Style="{StaticResource DeleteButtonStyle}"
+							Content="❌" 
+							Command="{Binding DataContext.RemoveToDoItemCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" 
+							CommandParameter="{Binding}"/>
+			</Grid>
+		</DataTemplate>
+	</Window.Resources>
 	<Grid Margin="10">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto"/>
@@ -32,17 +88,18 @@
 			<Label Grid.Row="1" Grid.Column="0" Content="Descrição:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 			<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewDescription}" VerticalAlignment="Center"/>
 			<Label Grid.Row="2" Grid.Column="0" Content="Data de conclusão:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-			<TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewCompleted}" VerticalAlignment="Center"/>
+			<DatePicker Grid.Row="2"  Grid.Column="1"
+						SelectedDate="{Binding NewCompleted}"
+						VerticalAlignment="Center" HorizontalAlignment="Left"
+						DisplayDateStart="{x:Static sys:DateTime.Now}"/>
 		</Grid>
+		
 		<Button Grid.Row="1"
+				Style="{StaticResource PrimaryButtonStyle}" 
 				Content="Adicionar Tarefa"
-				Margin="0,20"
-				Background="CornflowerBlue"
-				FontWeight="Bold"
-				FontSize="14"
 				Command="{Binding AddToDoItemCommand}"
-				HorizontalAlignment="Center"
-				Padding="10,5"/>
+				HorizontalAlignment="Center"/>
+		
 		<StackPanel Grid.Row="2"
 					Orientation="Horizontal"
 					HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -54,7 +111,8 @@
 				 VerticalAlignment="Center"
 				 Margin="5"/>
 		</StackPanel>
-		<ListBox Grid.Row="3" ItemsSource="{Binding Tasks}">
+
+		<ListBox Grid.Row="3" ItemsSource="{Binding Tasks}" ItemTemplate="{StaticResource ToDoItemTemplate}">
 			<ListBox.ItemContainerStyle>
 				<Style TargetType="ListBoxItem">
 					<Setter Property="Template">
@@ -68,64 +126,16 @@
 					</Setter>
 				</Style>
 			</ListBox.ItemContainerStyle>
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="auto"/>
-							<ColumnDefinition Width="*"/>
-							<ColumnDefinition Width="Auto"/>
-						</Grid.ColumnDefinitions>
-						<CheckBox IsChecked="{Binding IsCompleted, Mode=TwoWay}"
-								  Grid.Column="0"
-								  HorizontalAlignment="Center"
-								  VerticalAlignment="Center"
-								  Margin="3">
-						</CheckBox>
-						<Expander Grid.Column="1" Grid.Row="0">
-							<Expander.Header>
-								<TextBlock Text="{Binding Title}" Foreground="White" Margin="5" HorizontalAlignment="Stretch"/>
-							</Expander.Header>
-							<Expander.Style>
-								<Style TargetType="Expander">
-									<Setter Property="Background" Value="#00aaff"/>
-									<Style.Triggers>
-										<DataTrigger Binding="{Binding IsCompleted}" Value="True">
-											<Setter Property="Background" Value="LightGreen"/>
-										</DataTrigger>
-									</Style.Triggers>
-								</Style>
-							</Expander.Style>
-							<StackPanel x:Name="itemContainer">
-								<TextBlock Padding="5">
-									<Run Text="Descrição: " Foreground="Black" FontWeight="Bold"/>
-									<Run Text="{Binding Description}"/>
-								</TextBlock>
-								<TextBlock >
-									<Run Text="Data de criação: " Foreground="Black" FontWeight="Bold"/>
-									<Run Text="{Binding Create}"/>
-								</TextBlock>
-								<TextBlock>
-									<Run Text="Data de conclusão: " Foreground="Black" FontWeight="Bold"/>
-									<Run Text="{Binding Completed}"/>
-								</TextBlock>
-							</StackPanel>
-						</Expander>
-						<Button Grid.Column="2"
-								Content="❌"
-								Background="IndianRed"  
-								VerticalAlignment="Top" 
-								Padding="5"
-								Command="{Binding DataContext.RemoveToDoItemCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" 
-								CommandParameter="{Binding}"/>
-					</Grid>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
 		</ListBox>
+		
 		<StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,8,5,0">
 			<Button Command="{Binding LoadDataCommand}" Content="Recarregar" Padding="5,3" Margin="0,0,5,0"/>
 			<Button Command="{Binding SaveDataCommand}" Content="Salvar" Padding="5,3"/>
-			<Ellipse Visibility="{Binding CircleVisibility}" Fill="red" Width="15" Height="15" Margin="5,0"/>
+			<Ellipse Visibility="{Binding CircleVisibility}" Fill="red" Width="15" Height="15" Margin="5,0"/>	
+			<TextBlock>
+				Tem alteração?
+				<Run Text="{Binding UnsavedItems, Mode=OneWay, Converter={StaticResource BoolToYesOrNoStringConverter}}"/>
+			</TextBlock>
 		</StackPanel>
 	</Grid>
 </Window>
