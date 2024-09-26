@@ -6,8 +6,8 @@
              StartupUri="View/MainWindow.xaml">
     <Application.Resources>
 		<ResourceDictionary>
-			<c:SaveIndicatorVisibility x:Key="SaveIndicatorVisibility"/>
-			<c:DateForBrushConverter x:Key="DateForBrushConverter"/>
+			<c:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+			<c:DueDateToBrushConverter x:Key="DueDateToBrushConverter"/>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="Styles/Button.xaml"/>
 			</ResourceDictionary.MergedDictionaries>

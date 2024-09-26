@@ -27,7 +27,7 @@
 				<Expander Grid.Column="1" Grid.Row="0" Padding="8,3">
 					<Expander.Header>
 						<TextBlock Text="{Binding Title}" 
-								   Foreground="{Binding Completed, Converter={StaticResource DateForBrushConverter}}"
+								   Foreground="{Binding Completed, Converter={StaticResource DueDateToBrushConverter}}"
 								   Margin="5" 
 								   HorizontalAlignment="Stretch"
 								   FontWeight="Bold" FontSize="13" FontFamily="arial"/>
@@ -51,7 +51,7 @@
 							<Run Text="Data de criação: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
 							<Run Text="{Binding Create, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="DemiBold" FontFamily="Lobster"/>
 						</TextBlock>
-						<TextBlock Padding="5,3" Foreground="{Binding Completed, Converter={StaticResource DateForBrushConverter}}">
+						<TextBlock Padding="5,3" Foreground="{Binding Completed, Converter={StaticResource DueDateToBrushConverter}}">
 							<Run Text="Data de conclusão: " Foreground="Navy" FontWeight="Bold" FontSize="14" FontFamily="Roboto"/>
 							<Run Text="{Binding Completed, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="DemiBold" FontFamily="Lobster"/>
 						</TextBlock>
@@ -105,11 +105,10 @@
 					HorizontalAlignment="Right" VerticalAlignment="Center">
 			<CheckBox Content="Completas" IsChecked="{Binding OnlyCompleted}" VerticalAlignment="Center"/>
 			<Label Content="Buscar:" VerticalAlignment="Center" Margin="20,0,0,0"/>
-			<TextBox 
-				 Text="{Binding TitleFilter, UpdateSourceTrigger=PropertyChanged}" 
-				 Width="200"
-				 VerticalAlignment="Center"
-				 Margin="5"/>
+			<TextBox Text="{Binding TitleFilter, UpdateSourceTrigger=PropertyChanged}" 
+					 Width="200"
+					 VerticalAlignment="Center"
+					 Margin="5"/>
 		</StackPanel>
 
 		<ListBox Grid.Row="3" ItemsSource="{Binding Tasks}" ItemTemplate="{StaticResource ToDoItemTemplate}">
@@ -131,7 +130,7 @@
 		<StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,8,5,0">
 			<Button Command="{Binding LoadDataCommand}" Content="Recarregar" Padding="5,3" Margin="0,0,5,0"/>
 			<Button Command="{Binding SaveDataCommand}" Content="Salvar" Padding="5,3"/>
-			<Ellipse Visibility="{Binding UnsavedItems, Converter={StaticResource SaveIndicatorVisibility}}" Fill="red" Width="15" Height="15" Margin="5,0"/>
+			<Ellipse Visibility="{Binding UnsavedItems, Converter={StaticResource BoolToVisibilityConverter}}" Fill="red" Width="15" Height="15" Margin="5,0"/>
 		</StackPanel>
 	</Grid>
 </Window>
